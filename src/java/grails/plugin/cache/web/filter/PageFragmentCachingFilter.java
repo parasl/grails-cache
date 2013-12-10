@@ -430,14 +430,16 @@ public abstract class PageFragmentCachingFilter extends AbstractFilter {
 	protected void writeResponse(final HttpServletRequest request, final HttpServletResponse response,
 			final PageInfo pageInfo) throws IOException {
 
-		if (!WebUtils.isIncludeRequest(request)) {
-			int statusCode = determineResponseStatus(request, pageInfo);
+		int statusCode = determineResponseStatus(request, pageInfo);
+		if (!WebUtils.isIncludeRequest(request)) {			
 			response.setStatus(statusCode);
 			setContentType(response, pageInfo);
 			setCookies(pageInfo, response);
 			setHeaders(pageInfo, response);
 		}
-		writeResponse(response, pageInfo);
+		if (statusCode != HttpServletResponse.SC_NOT_MODIFIED) {
+			writeResponse(response, pageInfo);
+		}
 	}
 
 	protected int determineResponseStatus(HttpServletRequest request, PageInfo pageInfo) {
@@ -839,7 +841,7 @@ public abstract class PageFragmentCachingFilter extends AbstractFilter {
 		int timeToLive = (maxAge instanceof Integer) ? ((Integer)maxAge) : (int)pageInfo.getTimeToLiveSeconds();
 		for (Cache cache : caches) {
 			log.debug("Response ok. Adding to cache {} with key {} and ttl {}",
-					new Object[] { cache.getName(), key, getTimeToLive(element) });
+					new Object[] { cache.getName(), key, timeToLive });
 			put(cache, key, pageInfo, timeToLive);
 		}
 	}

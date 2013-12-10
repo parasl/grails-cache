@@ -363,7 +363,7 @@ public class PageInfo implements Serializable {
 			return false;
 		}
 
-		return ifNoneMatch == etag;
+		return ifNoneMatch.equals(etag);
 	}
 
 	public Map<String, Object> getCacheDirectives() {
